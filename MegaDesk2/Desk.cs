@@ -9,6 +9,18 @@
         Veneer = 125
     }
 
+    /*
+    public struct DeskStruct
+    {
+        string CustomerName;
+        int Width;
+        int Depth;
+        int NumberOfDrawers;
+        Materials SurfaceMaterial;
+        int ProductionTime;
+    }
+    */
+
     public class Desk
     {
         public Desk()

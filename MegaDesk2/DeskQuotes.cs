@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.IO;
 
 namespace MegaDesk
@@ -45,12 +46,22 @@ namespace MegaDesk
             try
             {
                 File.WriteAllLines(fileName, lines);
+                AddJson(lines);
             }
             catch (System.Exception e)
             {
                 throw new System.Exception("Can't write to " + fileName + ". " + e.Message);
             }
             
+        }
+
+        public void AddJson(string[] lines)
+        {
+            using (StreamWriter file = File.AppendText(@"quotes.json"))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, lines);
+            }
         }
 
         private void LoadFromFile()

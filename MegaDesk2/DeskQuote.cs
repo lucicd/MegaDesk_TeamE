@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 
 namespace MegaDesk
 {
@@ -180,6 +181,24 @@ namespace MegaDesk
                 (int)this.QuotedDesk.SurfaceMaterial,
                 this.QuotedDesk.NumberOfDrawers,
                 this.QuotedDesk.ProductionTime);
+        }
+
+        public int[,] GetRushOrder()
+        {
+            string fileName = @"Misc\rushOrderPrices.txt";
+            int[,] rushPrices = new int[3,3];
+            if (File.Exists(fileName))
+            {
+                string[] lines = File.ReadAllLines(fileName);
+                for (int row = 0; row < 3; row++)
+                {
+                    for (int col = 0; col < 3; col++)
+                    {
+                        rushPrices[row, col] = Convert.ToInt32(lines[row * 3 + col]);
+                    }
+                }
+            }
+            return rushPrices;
         }
     }
 }
