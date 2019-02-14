@@ -12,9 +12,9 @@ namespace MegaDesk
 {
     public partial class DisplayQuote : Form
     {
-        private DeskQuote quote;
+        private Desk quote;
 
-        public DisplayQuote(DeskQuote quote)
+        public DisplayQuote(Desk quote)
         {
             InitializeComponent();
             this.quote = quote;
@@ -29,22 +29,21 @@ namespace MegaDesk
 
         private void ShowQuote()
         {
-            Desk desk = quote.QuotedDesk;
-            lblCustomerName.Text = desk.CustomerName;
-            lblDeskWidth.Text = desk.Width.ToString();
-            lblDeskDepth.Text = desk.Depth.ToString();
-            lblSurfaceArea.Text = desk.SurfaceArea.ToString();
-            lblNumberOfDrawers.Text = desk.NumberOfDrawers.ToString();
-            lblSurfaceMaterial.Text = desk.SurfaceMaterialDescr;
-            lblProductionTime.Text = desk.ProductionTime.ToString() + " days";
+            lblCustomerName.Text = quote.CustomerName;
+            lblDeskWidth.Text = quote.Width.ToString();
+            lblDeskDepth.Text = quote.Depth.ToString();
+            lblSurfaceArea.Text = quote.SurfaceArea.ToString();
+            lblNumberOfDrawers.Text = quote.NumberOfDrawers.ToString();
+            lblSurfaceMaterial.Text = quote.SurfaceMaterialDescr();
+            lblProductionTime.Text = quote.ProductionTime.ToString() + " days";
 
-            lblOrderDate.Text = String.Format("{0,10:dd-MMM-yy}", quote.QuoteDate);
-            lblBasePrice.Text = String.Format("{0,10:$0.00}", quote.BasePrice);
-            lblAreaSurcharge.Text = String.Format("{0,10:$0.00}", quote.SurfaceAddon);
-            lblMaterialSurcharge.Text = String.Format("{0,10:$0.00}", quote.MaterialAddon);
-            lblDrawersSurcharge.Text = String.Format("{0,10:$0.00}", quote.DrawersAddon);
-            lblRushOrderSurcharge.Text = String.Format("{0,10:$0.00}", quote.RushOrderAddon);
-            lblTotalPrice.Text = String.Format("{0,10:$0.00}", quote.QuoteAmount);
+            lblOrderDate.Text = String.Format("{0,10:dd-MMM-yy}", quote.Quote.QuoteDate);
+            lblBasePrice.Text = String.Format("{0,10:$0.00}", quote.Quote.BasePrice);
+            lblAreaSurcharge.Text = String.Format("{0,10:$0.00}", quote.Quote.SurfaceAddon);
+            lblMaterialSurcharge.Text = String.Format("{0,10:$0.00}", quote.Quote.MaterialAddon);
+            lblDrawersSurcharge.Text = String.Format("{0,10:$0.00}", quote.Quote.DrawersAddon);
+            lblRushOrderSurcharge.Text = String.Format("{0,10:$0.00}", quote.Quote.RushOrderAddon);
+            lblTotalPrice.Text = String.Format("{0,10:$0.00}", quote.Quote.QuoteAmount);
         }
 
         private void DisplayQuote_Shown(object sender, EventArgs e)

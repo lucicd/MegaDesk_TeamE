@@ -31,10 +31,10 @@ namespace MegaDesk
         private void populateGrid(string materialDescr)
         {
             dataGridView1.Rows.Clear();
-            List<DeskQuote> quotes = Program.Quotes.GetFiltered(materialDescr);
-            foreach (DeskQuote quote in quotes)
+            List<Desk> quotes = Program.Quotes.GetFiltered(materialDescr);
+            foreach (Desk quote in quotes)
             {
-                dataGridView1.Rows.Add(quote.GridRow);
+                dataGridView1.Rows.Add(quote.GridRow());
             }
         }
 

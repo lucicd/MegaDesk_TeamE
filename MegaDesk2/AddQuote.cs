@@ -194,8 +194,8 @@ namespace MegaDesk
             newDesk.SurfaceMaterial = (Materials)cboSurfaceMaterial.SelectedValue;
             try
             {
-                Program.Quotes.Add(newDesk.Quote);
-                DisplayQuote displayQuoteForm = new DisplayQuote(newDesk.Quote);
+                Program.Quotes.Add(newDesk);
+                DisplayQuote displayQuoteForm = new DisplayQuote(newDesk);
                 var mainMenu = (MainMenu)Tag;
                 displayQuoteForm.Tag = mainMenu;
                 Tag = displayQuoteForm;

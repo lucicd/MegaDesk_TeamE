@@ -24,10 +24,10 @@ namespace MegaDesk
 
         private void ViewAllQuotes_Load(object sender, EventArgs e)
         {
-            List<DeskQuote> quotes = Program.Quotes.GetAll();
-            foreach (DeskQuote quote in quotes)
+            List<Desk> quotes = Program.Quotes.GetAll();
+            foreach (Desk quote in quotes)
             {
-                dataGridView1.Rows.Add(quote.GridRow);
+                dataGridView1.Rows.Add(quote.GridRow());
             }
         }
     }

@@ -6,33 +6,17 @@ namespace MegaDesk
 {
     public class DeskQuote
     {
-        public DeskQuote(Desk quotedDesk)
+
+        private const double FIRST_AREA_THRESHOLD = 1000;
+        private const double SECOND_AREA_THRESHOLD = 2000;
+
+        private Desk quotedDesk;
+
+        public DeskQuote(Desk myDesk)
         {
-            this.QuotedDesk = quotedDesk;
+            this.quotedDesk = myDesk;
             this.QuoteDate = DateTime.Now;
         }
-
-        public DeskQuote(string fileRec)
-        {
-            string[] split = fileRec.Split('\t');
-            Desk desk = new Desk();
-            this.QuotedDesk = desk;
-            desk.CustomerName = split[0];
-            CultureInfo provider = CultureInfo.InvariantCulture;
-            string strDate = split[1];
-            DateTime dt;
-            if (DateTime.TryParse(strDate, out  dt))
-            {
-                this.QuoteDate = dt;
-            }
-            desk.Width = Convert.ToInt32(split[2]);
-            desk.Depth = Convert.ToInt32(split[3]);
-            desk.SurfaceMaterial = (Materials)Convert.ToInt32(split[4]);
-            desk.NumberOfDrawers = Convert.ToInt32(split[5]);
-            desk.ProductionTime = Convert.ToInt32(split[6]);
-        }
-
-        public Desk QuotedDesk { get; }
 
         public double QuoteAmount
         {
@@ -58,10 +42,10 @@ namespace MegaDesk
         {
             get
             {
-                int surfaceArea = this.QuotedDesk.Width * this.QuotedDesk.Depth;
+                int surfaceArea = this.quotedDesk.Width * this.quotedDesk.Depth;
                 if (surfaceArea > Desk.AREA_SURCHARGE_THRESHOLD)
                 {
-                    return (surfaceArea - Desk.AREA_SURCHARGE_THRESHOLD) * 
+                    return (surfaceArea - Desk.AREA_SURCHARGE_THRESHOLD) *
                         Desk.AREA_SURCHARGE_PER_UNIT;
                 }
                 else
@@ -69,13 +53,14 @@ namespace MegaDesk
                     return 0;
                 }
             }
+            
         }
 
         public double DrawersAddon
         {
             get
             {
-                return this.QuotedDesk.NumberOfDrawers * Desk.DRAWER_SURCHARGE;
+                return this.quotedDesk.NumberOfDrawers * Desk.DRAWER_SURCHARGE;
             }
         }
 
@@ -83,7 +68,7 @@ namespace MegaDesk
         {
             get
             {
-                return (double)this.QuotedDesk.SurfaceMaterial; 
+                return (double)this.quotedDesk.SurfaceMaterial; 
             }
         }
 
@@ -91,111 +76,56 @@ namespace MegaDesk
         {
             get
             {
-                int surfaceArea = this.QuotedDesk.Width * this.QuotedDesk.Depth;
-                double rushOrderSurcharge = 0;
-                if (surfaceArea < 1000)
+                int surfaceArea = this.quotedDesk.Width * this.quotedDesk.Depth;
+
+                int row;
+
+                switch (this.quotedDesk.ProductionTime)
                 {
-                    switch (this.QuotedDesk.ProductionTime)
-                    {
-                        case 3:
-                            rushOrderSurcharge = 60;
-                            break;
-                        case 5:
-                            rushOrderSurcharge = 40;
-                            break;
-                        case 7:
-                            rushOrderSurcharge = 30;
-                            break;
-                        default:
-                            rushOrderSurcharge = 0;
-                            break;
-                    }
+                    case 3:
+                        row = 0;
+                        break;
+                    case 5:
+                        row = 1;
+                        break;
+                    case 7:
+                        row = 2;
+                        break;
+                    default:
+                        return 0;
                 }
-                else if (surfaceArea <= 2000)
+
+                int col;
+
+                if (surfaceArea < FIRST_AREA_THRESHOLD)
                 {
-                    switch (this.QuotedDesk.ProductionTime)
-                    {
-                        case 3:
-                            rushOrderSurcharge = 70;
-                            break;
-                        case 5:
-                            rushOrderSurcharge = 50;
-                            break;
-                        case 7:
-                            rushOrderSurcharge = 35;
-                            break;
-                        default:
-                            rushOrderSurcharge = 0;
-                            break;
-                    }
+                    col = 0;
+                }
+                else if (surfaceArea <= SECOND_AREA_THRESHOLD)
+                {
+                    col = 1;
                 }
                 else
                 {
-                    switch (this.QuotedDesk.ProductionTime)
-                    {
-                        case 3:
-                            rushOrderSurcharge = 80;
-                            break;
-                        case 5:
-                            rushOrderSurcharge = 60;
-                            break;
-                        case 7:
-                            rushOrderSurcharge = 40;
-                            break;
-                        default:
-                            rushOrderSurcharge = 0;
-                            break;
-                    }
+                    col = 2;
                 }
-                return rushOrderSurcharge;
-            }
-        }
 
-        public string[] GridRow
-        {
-            get
-            {
-                Desk desk = this.QuotedDesk;
-                string[] row = {
-                    desk.CustomerName,
-                    String.Format("{0,10:dd-MMM-yy}", this.QuoteDate),
-                    desk.Width.ToString(),
-                    desk.Depth.ToString(),
-                    desk.SurfaceArea.ToString(),
-                    desk.SurfaceMaterialDescr,
-                    desk.NumberOfDrawers.ToString(),
-                    desk.ProductionTime.ToString() + " days",
-                    String.Format("{0,10:$0.00}", this.QuoteAmount)
-                };
-                return row;
+                int[,] rushOrderPrices = GetRushOrder();
+                return (double)rushOrderPrices[row, col];
             }
-        }
-
-        public string MakeFileRecord()
-        {
-            return String.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}", 
-                this.QuotedDesk.CustomerName,
-                this.QuoteDate.ToString("dd-MMM-yy"),
-                this.QuotedDesk.Width,
-                this.QuotedDesk.Depth,
-                (int)this.QuotedDesk.SurfaceMaterial,
-                this.QuotedDesk.NumberOfDrawers,
-                this.QuotedDesk.ProductionTime);
         }
 
         public int[,] GetRushOrder()
         {
-            string fileName = @"Misc\rushOrderPrices.txt";
+            string data = Properties.Resources.rushOrderPrices;
+            string[] lines = data.Split(new string[] { Environment.NewLine },
+                StringSplitOptions.RemoveEmptyEntries);
             int[,] rushPrices = new int[3,3];
-            if (File.Exists(fileName))
+            for (int row = 0; row < 3; row++)
             {
-                string[] lines = File.ReadAllLines(fileName);
-                for (int row = 0; row < 3; row++)
+                for (int col = 0; col < 3; col++)
                 {
-                    for (int col = 0; col < 3; col++)
-                    {
-                        rushPrices[row, col] = Convert.ToInt32(lines[row * 3 + col]);
-                    }
+                    rushPrices[row, col] = Convert.ToInt32(lines[row * 3 + col]);
                 }
             }
             return rushPrices;

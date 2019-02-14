@@ -7,21 +7,21 @@ namespace MegaDesk
 
     public class DeskQuotes
     {
-        private List<DeskQuote> quotes;
+        private List<Desk> quotes;
         private const string fileName = @"quotes.txt";
 
         public DeskQuotes()
         {
-            quotes = new List<DeskQuote>();
+            quotes = new List<Desk>();
             LoadFromFile();
         }
 
-        public List<DeskQuote> GetAll()
+        public List<Desk> GetAll()
         {
             return quotes;
         }
 
-        public List<DeskQuote> GetFiltered(string materialDescr)
+        public List<Desk> GetFiltered(string materialDescr)
         {
             if (materialDescr.Equals("All"))
             {
@@ -31,22 +31,22 @@ namespace MegaDesk
             {
                 return quotes.FindAll
                 (
-                    delegate (DeskQuote quote)
+                    delegate (Desk quote)
                     {
-                        return quote.QuotedDesk.SurfaceMaterial.ToString() == materialDescr;
+                        return quote.SurfaceMaterial.ToString() == materialDescr;
                     }
                 );
             }
         }
 
-        public void Add(DeskQuote quote)
+        public void Add(Desk quote)
         {
             quotes.Add(quote);
             string[] lines = quotes.ConvertAll(x => x.MakeFileRecord()).ToArray();
             try
             {
                 File.WriteAllLines(fileName, lines);
-                AddJson(lines);
+                AddJson();
             }
             catch (System.Exception e)
             {
@@ -55,12 +55,13 @@ namespace MegaDesk
             
         }
 
-        public void AddJson(string[] lines)
+        public void AddJson()
         {
-            using (StreamWriter file = File.AppendText(@"quotes.json"))
+            using (StreamWriter file = File.CreateText(@"quotes.json"))
             {
                 JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(file, lines);
+                serializer.Formatting = Formatting.Indented;
+                serializer.Serialize(file, quotes);
             }
         }
 
@@ -71,7 +72,7 @@ namespace MegaDesk
                 string[] lines = File.ReadAllLines(fileName);
                 foreach (string line in lines)
                 {
-                    quotes.Add(new DeskQuote(line));
+                    quotes.Add(new Desk(line));
                 }
             }
         }
